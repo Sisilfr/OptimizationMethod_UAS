@@ -25,72 +25,79 @@ def update_velocity_and_position(positions, velocities, p_best_positions, g_best
 # Streamlit Interface
 st.title('PSO Simulation: Interactive Particle Swarm Optimization')
 
-# Input untuk jumlah partikel dan iterasi
-num_particles = st.number_input("Number of Particles:", min_value=2, max_value=100, value=5)
-num_iterations = st.number_input("Number of Iterations:", min_value=1, max_value=100, value=10)
+# Upload file Excel
+uploaded_file = st.file_uploader("Upload Excel file with particle positions", type=["xlsx"])
 
-# Input untuk posisi awal partikel (bisa diisi manual oleh pengguna)
-positions_input = st.text_area("Initial Positions (x, y) of particles (comma separated, e.g., 3,7;2,5;...):")
+if uploaded_file is not None:
+    # Membaca file Excel yang diunggah
+    try:
+        df = pd.read_excel(uploaded_file, engine='openpyxl')  # Pastikan menggunakan openpyxl untuk membaca Excel
 
-# Mengolah input posisi partikel yang dimasukkan oleh pengguna
-try:
-    positions_list = [tuple(map(int, pos.split(','))) for pos in positions_input.split(';')]
-    positions = np.array(positions_list)
-except Exception as e:
-    st.error(f"Error processing input: {e}")
-    st.stop()
+        # Menampilkan data yang ada di Excel (Posisi X dan Posisi Y)
+        st.write("Initial Particle Positions from Excel:")
+        st.dataframe(df)
 
-velocities = np.random.uniform(-0.5, 0.5, positions.shape)
+        # Mengambil data posisi dan kecepatan dari Excel
+        positions_input = df[['Posisi X', 'Posisi Y']].values  # Mengambil posisi X dan Y
+        velocities = np.random.uniform(-0.5, 0.5, positions_input.shape)  # Kecepatan acak
 
-# Target position (fixed as 10, 10)
-target_position = np.array([10, 10])
+        # Target position (fixed as 10, 10)
+        target_position = np.array([10, 10])
 
-# Initial P_best and G_best
-p_best_positions = positions.copy()
-p_best_values = np.linalg.norm(positions - target_position, axis=1)
-g_best_position = positions[np.argmin(p_best_values)]
-g_best_value = np.min(p_best_values)
+        # Initial P_best and G_best
+        p_best_positions = positions_input.copy()
+        p_best_values = np.linalg.norm(positions_input - target_position, axis=1)
+        g_best_position = positions_input[np.argmin(p_best_values)]
+        g_best_value = np.min(p_best_values)
 
-# Run PSO simulation
-for iteration in range(num_iterations):
-    for i in range(num_particles):
-        # Calculate distance to target for each particle
-        distance = calculate_distance(positions[i], target_position)
-        
-        # Update P_best if found better position
-        if distance < p_best_values[i]:
-            p_best_positions[i] = positions[i]
-            p_best_values[i] = distance
-    
-    # Update G_best
-    best_particle_index = np.argmin(p_best_values)
-    g_best_position = p_best_positions[best_particle_index]
-    g_best_value = p_best_values[best_particle_index]
-    
-    # Update positions and velocities
-    positions, velocities = update_velocity_and_position(positions, velocities, p_best_positions, g_best_position)
+        # Input untuk jumlah partikel dan iterasi
+        num_particles = len(positions_input)
+        num_iterations = 10  # Iterasi yang tetap
 
-    # Visualization
-    fig, ax = plt.subplots()
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 12)
-    ax.scatter(positions[:, 0], positions[:, 1], color='blue', label="Particles")
-    ax.scatter(target_position[0], target_position[1], color='red', label="Target")
-    ax.scatter(g_best_position[0], g_best_position[1], color='green', label="Best Position")
+        # Run PSO simulation
+        for iteration in range(num_iterations):
+            for i in range(num_particles):
+                # Calculate distance to target for each particle
+                distance = calculate_distance(positions_input[i], target_position)
+                
+                # Update P_best if found better position
+                if distance < p_best_values[i]:
+                    p_best_positions[i] = positions_input[i]
+                    p_best_values[i] = distance
+            
+            # Update G_best
+            best_particle_index = np.argmin(p_best_values)
+            g_best_position = p_best_positions[best_particle_index]
+            g_best_value = p_best_values[best_particle_index]
+            
+            # Update positions and velocities
+            positions_input, velocities = update_velocity_and_position(positions_input, velocities, p_best_positions, g_best_position)
 
-    ax.set_title(f"Iteration {iteration + 1}")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.legend()
+            # Visualization
+            fig, ax = plt.subplots()
+            ax.set_xlim(0, 12)
+            ax.set_ylim(0, 12)
+            ax.scatter(positions_input[:, 0], positions_input[:, 1], color='blue', label="Particles")
+            ax.scatter(target_position[0], target_position[1], color='red', label="Target")
+            ax.scatter(g_best_position[0], g_best_position[1], color='green', label="Best Position")
 
-    # Display plot in Streamlit
-    canvas = FigureCanvas(fig)
-    canvas.draw()
-    st.pyplot(fig)
+            ax.set_title(f"Iteration {iteration + 1}")
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
+            ax.legend()
 
-    # Show text explanation
-    st.write(f"Iteration {iteration + 1}: Best Position = {g_best_position}, Distance = {g_best_value:.4f}")
+            # Display plot in Streamlit
+            canvas = FigureCanvas(fig)
+            canvas.draw()
+            st.pyplot(fig)
 
-# Final Results
-st.write(f"Final Best Position: {g_best_position}")
-st.write(f"Final Best Distance to Target: {g_best_value:.4f}")
+            # Show text explanation
+            st.write(f"Iteration {iteration + 1}: Best Position = {g_best_position}, Distance = {g_best_value:.4f}")
+
+        # Final Results
+        st.write(f"Final Best Position: {g_best_position}")
+        st.write(f"Final Best Distance to Target: {g_best_value:.4f}")
+
+    except Exception as e:
+        st.error(f"Error reading Excel file: {e}")
+        st.stop()
