@@ -31,9 +31,15 @@ num_iterations = st.number_input("Number of Iterations:", min_value=1, max_value
 
 # Input untuk posisi awal partikel (bisa diisi manual oleh pengguna)
 positions_input = st.text_area("Initial Positions (x, y) of particles (comma separated, e.g., 3,7;2,5;...):")
-positions_list = [tuple(map(int, pos.split(','))) for pos in positions_input.split(';')]
 
-positions = np.array(positions_list)
+# Mengolah input posisi partikel yang dimasukkan oleh pengguna
+try:
+    positions_list = [tuple(map(int, pos.split(','))) for pos in positions_input.split(';')]
+    positions = np.array(positions_list)
+except Exception as e:
+    st.error(f"Error processing input: {e}")
+    st.stop()
+
 velocities = np.random.uniform(-0.5, 0.5, positions.shape)
 
 # Target position (fixed as 10, 10)
