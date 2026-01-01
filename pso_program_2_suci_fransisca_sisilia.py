@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -38,11 +37,14 @@ c2 = st.sidebar.slider("Social Coefficient (c2)", 0.0, 2.0, 1.5)
 positions_input = st.text_area("Initial Positions (x, y) of particles (comma separated, e.g., 3,7;2,5;...):")
 
 # Mengolah input posisi partikel yang dimasukkan oleh pengguna
-def process_positions_input(positions_input):
+def process_positions_input(positions_input, num_particles):
     positions_list = []
     try:
         # Mengolah input menjadi tuple (x, y)
         positions = positions_input.split(';')  # Memisahkan partikel
+        if len(positions) != num_particles:
+            st.error(f"❌ Jumlah posisi partikel yang dimasukkan tidak sesuai dengan jumlah partikel ({num_particles})!")
+            return []
         for pos in positions:
             x, y = pos.split(',')  # Memisahkan x dan y
             positions_list.append((int(x.strip()), int(y.strip())))  # Mengubah menjadi tuple dan menghapus spasi
@@ -51,7 +53,7 @@ def process_positions_input(positions_input):
         st.error(f"Error processing input: {e}")
         return []
 
-positions_list = process_positions_input(positions_input)
+positions_list = process_positions_input(positions_input, num_particles)
 
 # Jika format input salah, hentikan eksekusi
 if not positions_list:
