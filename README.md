@@ -1,11 +1,12 @@
 # 🚀 UAS Optimization Methods – Particle Swarm Optimization
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://uasoptimizationmethods.streamlit.app) https://uasoptimizationmethods.streamlit.app/
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)]([[https://uasoptimizationmethods.streamlit.app](https://uaspsoprogram2.streamlit.app/)](https://uaspsoprogram2.streamlit.app/)) https://uasoptimizationmethods.streamlit.app/
 
 Implementasi **Particle Swarm Optimization (PSO)** untuk **Ujian Akhir Semester (UAS) Optimization Methods**.  
 Project ini dirancang **sesuai rubrik penilaian** dan terintegrasi penuh antara **Excel, Python, dan Streamlit**.
 
-<img width="1360" height="688" alt="Image" src="https://github.com/user-attachments/assets/ebc482ba-c0de-4afe-a190-201e40065d46" />
+<img width="1915" height="919" alt="image" src="https://github.com/user-attachments/assets/f1a7a48f-dfb6-4395-8384-dddbec65650d" />
+
 
 ---
 
