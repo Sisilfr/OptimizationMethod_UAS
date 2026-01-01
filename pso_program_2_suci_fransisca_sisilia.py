@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -22,11 +23,16 @@ def update_velocity_and_position(positions, velocities, p_best_positions, g_best
     return positions, velocities
 
 # Streamlit Interface
-st.title('PSO Simulation: Interactive Particle Swarm Optimization')
+st.set_page_config(page_title="PSO Simulation - Particle Swarm Optimization", layout="wide")
+st.title('🚀 PSO Simulation: Interactive Particle Swarm Optimization')
 
-# Input untuk jumlah partikel dan iterasi
-num_particles = st.number_input("Number of Particles:", min_value=2, max_value=100, value=5)
-num_iterations = st.number_input("Number of Iterations:", min_value=1, max_value=100, value=10)
+# Sidebar untuk parameter input
+st.sidebar.header("⚙️ Parameter PSO")
+num_particles = st.sidebar.number_input("Number of Particles:", min_value=2, max_value=100, value=5)
+num_iterations = st.sidebar.number_input("Number of Iterations:", min_value=1, max_value=100, value=10)
+w = st.sidebar.slider("Inertia Weight (w)", 0.0, 1.0, 0.8)
+c1 = st.sidebar.slider("Cognitive Coefficient (c1)", 0.0, 2.0, 1.5)
+c2 = st.sidebar.slider("Social Coefficient (c2)", 0.0, 2.0, 1.5)
 
 # Input untuk posisi awal partikel (bisa diisi manual oleh pengguna)
 positions_input = st.text_area("Initial Positions (x, y) of particles (comma separated, e.g., 3,7;2,5;...):")
@@ -83,17 +89,18 @@ for iteration in range(num_iterations):
     positions, velocities = update_velocity_and_position(positions, velocities, p_best_positions, g_best_position)
 
     # Visualization
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10, 6))
     ax.set_xlim(0, 12)
     ax.set_ylim(0, 12)
-    ax.scatter(positions[:, 0], positions[:, 1], color='blue', label="Particles")
-    ax.scatter(target_position[0], target_position[1], color='red', label="Target")
-    ax.scatter(g_best_position[0], g_best_position[1], color='green', label="Best Position")
+    ax.scatter(positions[:, 0], positions[:, 1], color='blue', label="Particles", s=60)
+    ax.scatter(target_position[0], target_position[1], color='red', label="Target", s=100)
+    ax.scatter(g_best_position[0], g_best_position[1], color='green', label="Best Position", s=150, marker="X")
 
-    ax.set_title(f"Iteration {iteration + 1}")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
+    ax.set_title(f"Iteration {iteration + 1}", fontsize=16)
+    ax.set_xlabel("X", fontsize=14)
+    ax.set_ylabel("Y", fontsize=14)
     ax.legend()
+    ax.grid(True, alpha=0.3)
 
     # Display plot in Streamlit
     canvas = FigureCanvas(fig)
@@ -104,5 +111,5 @@ for iteration in range(num_iterations):
     st.write(f"Iteration {iteration + 1}: Best Position = {g_best_position}, Distance = {g_best_value:.4f}")
 
 # Final Results
-st.write(f"Final Best Position: {g_best_position}")
-st.write(f"Final Best Distance to Target: {g_best_value:.4f}")
+st.write(f"### Final Best Position: {g_best_position}")
+st.write(f"### Final Best Distance to Target: {g_best_value:.4f}")
